@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% from "macros.html" import kpi %}
+
+{% block page_title %}RFM Analytics{% endblock %}
+{% block subtitle %}Customer segments by Recency, Frequency and Monetary value{% endblock %}
+
+{% block content %}
+<section class="kpi-grid">
+  {{ kpi("RFM Customer Count", rfm.total_customers|num) }}
+  {{ kpi("Total Segment Revenue", rfm.total_revenue|money, "Sum of Monetary across segments") }}
+  {{ kpi("Segments", rfm.segments|length|num) }}
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Customers per segment</h3></div>
+    <div class="chart-box"><canvas id="segmentCountChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Revenue contribution by segment</h3></div>
+    <div class="chart-box"><canvas id="segmentRevenueChart"></canvas></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h3>Segment summary</h3></div>
+  <div class="table-wrap">
+    <table class="table sortable">
+      <thead>
+        <tr>
+          <th>Segment</th><th>Customers</th><th>Customer %</th><th>Segment Revenue</th>
+          <th>Revenue %</th><th>Avg Recency (days)</th><th>Avg Frequency</th><th>Avg Monetary</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in rfm.segments %}
+        <tr>
+          <td class="text" data-value="{{ s.CustomerSegment }}">
+            <span class="dot" style="background: {{ s.color }}"></span>
+            <strong>{{ s.CustomerSegment }}</strong>
+            <div class="muted">{{ s.description }}</div>
+          </td>
+          <td data-value="{{ s.customers }}">{{ s.customers|num }}</td>
+          <td data-value="{{ s.customer_pct }}">{{ s.customer_pct|pct(2) }}</td>
+          <td data-value="{{ s.revenue }}">{{ s.revenue|money }}</td>
+          <td data-value="{{ s.revenue_pct }}">{{ s.revenue_pct|pct(2) }}</td>
+          <td data-value="{{ s.avg_recency }}">{{ s.avg_recency|num(1) }}</td>
+          <td data-value="{{ s.avg_frequency }}">{{ s.avg_frequency|num(2) }}</td>
+          <td data-value="{{ s.avg_monetary }}">{{ s.avg_monetary|money(2) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="8" class="muted">No RFM data found.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const segments = {{ rfm.segments|tojson }};
+  const labels = segments.map(s => s.CustomerSegment);
+  const colors = segments.map(s => s.color);
+
+  new Chart(document.getElementById("segmentCountChart"), {
+    type: "doughnut",
+    data: { labels: labels,
+            datasets: [{ data: segments.map(s => s.customers), backgroundColor: colors, borderWidth: 0 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: "55%",
+               plugins: { legend: { position: "right" } } }
+  });
+
+  new Chart(document.getElementById("segmentRevenueChart"), {
+    type: "bar",
+    data: { labels: labels,
+            datasets: [{ label: "Revenue %", data: segments.map(s => s.revenue_pct),
+                         backgroundColor: colors, borderRadius: 6 }] },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+               plugins: { legend: { display: false } },
+               scales: { x: { ticks: { callback: v => v + "%" } } } }
+  });
+</script>
+{% endblock %}

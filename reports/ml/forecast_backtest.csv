@@ -1,0 +1,7 @@
+metric,model,mape,error
+revenue,Moving average (3m),10.806091577110672,
+revenue,Seasonal naive,86.52804952010146,
+revenue,Holt-Winters,,statsmodels is not installed
+orders,Moving average (3m),10.691495310293815,
+orders,Seasonal naive,88.11330638100145,
+orders,Holt-Winters,,statsmodels is not installed

@@ -1,0 +1,22 @@
+{
+    "project": "E-Commerce Business Intelligence & Customer Analytics",
+    "phase": "Phase 2 - Data Cleaning & Data Quality Assessment",
+    "source_file": "data.csv",
+    "initial_rows": 541909,
+    "initial_columns": 8,
+    "exact_duplicates_removed": 5269,
+    "cancellation_rows": 9251,
+    "non_cancellation_rows": 527389,
+    "cleaned_sales_rows": 225423,
+    "customer_eligible_rows": 166363,
+    "rows_removed_from_non_cancellation_sales": 301966,
+    "unique_invoices": 8556,
+    "unique_products": 3754,
+    "unique_customers": 2997,
+    "total_quantity": 2388383,
+    "total_revenue": 4663255.69,
+    "date_min": "2010-01-12",
+    "date_max": "2011-12-10",
+    "missing_customer_id_in_cleaned_sales": 59060,
+    "customer_id_coverage_percentage": 73.8
+}

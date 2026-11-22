@@ -1,0 +1,34 @@
+{
+    "project": "E-Commerce Business Intelligence & Customer Analytics",
+    "phase": "Phase 3 - Exploratory Data Analysis",
+    "analysis_start_date": "2010-01-12 08:26:00",
+    "analysis_end_date": "2011-12-10 17:19:00",
+    "kpis": {
+        "total_revenue": 4663255.69,
+        "total_orders": 8556,
+        "unique_customers": 2997,
+        "unique_products": 3754,
+        "units_sold": 2388383,
+        "average_order_value": 545.03,
+        "average_revenue_per_customer": 1555.97,
+        "repeat_customers": 1534,
+        "one_time_customers": 1463,
+        "repeat_customer_percentage": 51.18,
+        "repeat_customer_revenue_percentage": 68.07
+    },
+    "customer_revenue_concentration": {
+        "top_1_percent_revenue_percentage": 24.96,
+        "top_5_percent_revenue_percentage": 40.49,
+        "top_10_percent_revenue_percentage": 49.07
+    },
+    "product_concentration": {
+        "products_to_reach_80_percent_revenue": 760,
+        "product_catalog_percentage": 20.25
+    },
+    "cancellation_analysis": {
+        "Cancellation_Rows": 9251,
+        "Cancelled_Invoices": 3836,
+        "Cancellation_Quantity": -275560,
+        "Cancellation_Value_Proxy": -893979.73
+    }
+}

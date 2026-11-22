@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "macros.html" import kpi %}
+
+{% block page_title %}Overview{% endblock %}
+{% block subtitle %}Headline KPIs and monthly performance{% endblock %}
+
+{% block content %}
+<section class="kpi-grid">
+  {{ kpi("Total Revenue", kpis.total_revenue|money) }}
+  {{ kpi("Total Orders", kpis.total_orders|num) }}
+  {{ kpi("Total Customers", kpis.total_customers|num) }}
+  {{ kpi("Average Order Value", kpis.aov|money(2), "Revenue ÷ orders") }}
+  {{ kpi("Total Units Sold", kpis.total_units|num) }}
+  {{ kpi("Revenue per Customer", kpis.revenue_per_customer|money(2), "Revenue ÷ customers") }}
+  {{ kpi("Average Selling Price", kpis.asp|money(2), "Revenue ÷ units") }}
+  {{ kpi("Orders per Customer", kpis.orders_per_customer|num(2), "Orders ÷ customers") }}
+</section>
+
+<section class="card">
+  <div class="card-head"><h3>Monthly revenue & orders</h3></div>
+  <div class="chart-box tall"><canvas id="monthlyChart"></canvas></div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head">
+      <h3>Top 5 products by revenue</h3>
+      <a href="{{ url_for('products') }}">View all →</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Product</th><th>Revenue</th><th>Units</th></tr></thead>
+        <tbody>
+        {% for p in top_products %}
+          <tr>
+            <td class="text">{{ p.description or p.StockCode }}</td>
+            <td data-value="{{ p.revenue }}">{{ p.revenue|money }}</td>
+            <td data-value="{{ p.units }}">{{ p.units|num }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="3" class="muted">No data for this period.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h3>Top 5 customers by revenue</h3>
+      <a href="{{ url_for('customers') }}">View all →</a>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Customer ID</th><th>Revenue</th><th>Orders</th></tr></thead>
+        <tbody>
+        {% for c in top_customers %}
+          <tr>
+            <td class="text">{{ c.CustomerID }}</td>
+            <td data-value="{{ c.revenue }}">{{ c.revenue|money }}</td>
+            <td data-value="{{ c.orders }}">{{ c.orders|num }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="3" class="muted">No data for this period.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const monthly = {{ monthly|tojson }};
+  new Chart(document.getElementById("monthlyChart"), {
+    type: "bar",
+    data: {
+      labels: monthly.map(r => r.YearMonth),
+      datasets: [
+        { label: "Revenue", data: monthly.map(r => r.revenue),
+          backgroundColor: "#6366f1", borderRadius: 6, yAxisID: "y" },
+        { label: "Orders", data: monthly.map(r => r.orders), type: "line",
+          borderColor: "#f59e0b", backgroundColor: "#f59e0b", tension: .3, yAxisID: "y1" }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        y:  { position: "left",  ticks: { callback: v => gbp(v) } },
+        y1: { position: "right", grid: { drawOnChartArea: false } }
+      }
+    }
+  });
+</script>
+{% endblock %}

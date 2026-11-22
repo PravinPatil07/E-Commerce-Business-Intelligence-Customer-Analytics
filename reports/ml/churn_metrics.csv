@@ -1,0 +1,6 @@
+,value
+train_rows,14990.0
+test_rows,2499.0
+base_churn_rate,0.7106842737094838
+roc_auc,0.7108643913623165
+precision_top10pct,0.8594377510040161

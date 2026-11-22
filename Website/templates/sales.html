@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block page_title %}Sales Analytics{% endblock %}
+{% block subtitle %}Monthly trends, growth, and when customers buy{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="card-head"><h3>Monthly performance</h3></div>
+  <div class="table-wrap">
+    <table class="table sortable">
+      <thead>
+        <tr>
+          <th>Month</th><th>Revenue</th><th>Orders</th><th>Customers</th>
+          <th>AOV</th><th>Revenue MoM</th><th>Orders MoM</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in monthly %}
+        {% set rg = r.revenue_growth %}
+        {% set og = r.order_growth %}
+        <tr>
+          <td class="text" data-value="{{ r.YearMonth }}">{{ r.YearMonth }}</td>
+          <td data-value="{{ r.revenue }}">{{ r.revenue|money }}</td>
+          <td data-value="{{ r.orders }}">{{ r.orders|num }}</td>
+          <td data-value="{{ r.customers }}">{{ r.customers|num }}</td>
+          <td data-value="{{ r.aov or 0 }}">{{ r.aov|money(2) }}</td>
+          <td data-value="{{ rg or 0 }}" class="{% if rg is not none %}{{ 'pos' if rg >= 0 else 'neg' }}{% endif %}">{{ rg|pct(1, true) }}</td>
+          <td data-value="{{ og or 0 }}" class="{% if og is not none %}{{ 'pos' if og >= 0 else 'neg' }}{% endif %}">{{ og|pct(1, true) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="7" class="muted">No data for this period.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Revenue by weekday</h3></div>
+    <div class="chart-box"><canvas id="weekdayChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Revenue by hour of day</h3></div>
+    <div class="chart-box"><canvas id="hourChart"></canvas></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-head"><h3>Revenue by year / month</h3></div>
+  <div class="table-wrap">
+    <table class="table heatmap">
+      <thead>
+        <tr>
+          <th>Year</th>
+          {% for m in matrix.months %}<th>{{ m }}</th>{% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for row in matrix.rows %}
+        <tr>
+          <th>{{ matrix.years[loop.index0] }}</th>
+          {% for v in row %}
+            {% set ratio = (v / matrix.max_value) if (v and matrix.max_value) else 0 %}
+            <td style="background: rgba(99, 102, 241, {{ '%.2f'|format(ratio * 0.85) }});"
+                title="{{ v|money if v else 'No sales' }}">{{ v|money if v else '—' }}</td>
+          {% endfor %}
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const weekday = {{ weekday|tojson }};
+  const hourly = {{ hourly|tojson }};
+
+  new Chart(document.getElementById("weekdayChart"), {
+    type: "bar",
+    data: {
+      labels: weekday.map(d => d.weekday.slice(0, 3)),
+      datasets: [{ label: "Revenue", data: weekday.map(d => d.revenue),
+                   backgroundColor: "#6366f1", borderRadius: 6 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+               plugins: { legend: { display: false } },
+               scales: { y: { ticks: { callback: v => gbp(v) } } } }
+  });
+
+  new Chart(document.getElementById("hourChart"), {
+    type: "bar",
+    data: {
+      labels: hourly.map(h => h.hour + ":00"),
+      datasets: [{ label: "Revenue", data: hourly.map(h => h.revenue),
+                   backgroundColor: "#06b6d4", borderRadius: 4 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+               plugins: { legend: { display: false } },
+               scales: { y: { ticks: { callback: v => gbp(v) } } } }
+  });
+</script>
+{% endblock %}

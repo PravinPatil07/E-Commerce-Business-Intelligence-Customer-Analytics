@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block page_title %}{% endblock %} · E-Commerce BI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Loaded synchronously so inline chart scripts at the bottom of pages can use it -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">📊</span> E-Commerce BI</div>
+    <nav>
+      {% set nav = [
+        ('overview', 'Overview'),
+        ('sales', 'Sales Analytics'),
+        ('products', 'Product Analytics'),
+        ('customers', 'Customer Analytics'),
+        ('rfm', 'RFM Analytics'),
+        ('outlook', 'Outlook & Forecasts'),
+      ] %}
+      {% for endpoint, label in nav %}
+        <a href="{{ url_for(endpoint) }}"
+           class="nav-link {% if request.endpoint == endpoint %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h1>{{ self.page_title() }}</h1>
+        <p class="subtitle">{% block subtitle %}{% endblock %}</p>
+      </div>
+
+      {% if request.endpoint not in ['rfm', 'outlook'] %}
+      <form method="get" class="filter">
+        <label for="year">Year</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+          <option value="">All years</option>
+          {% for y in years %}
+            <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+          {% endfor %}
+        </select>
+      </form>
+      {% endif %}
+    </header>
+
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

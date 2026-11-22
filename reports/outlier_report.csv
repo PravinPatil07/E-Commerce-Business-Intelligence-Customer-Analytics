@@ -1,0 +1,4 @@
+Metric,Q1,Q3,IQR,Lower_Bound,Upper_Bound,Outlier_Count,Outlier_Percentage
+Quantity,1.0,10.0,9.0,-12.5,23.5,23763,10.54
+UnitPrice,1.25,4.13,2.88,-3.07,8.45,16344,7.25
+Revenue,3.78,17.7,13.92,-17.1,38.58,18205,8.08

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% from "macros.html" import kpi %}
+
+{% block page_title %}Customer Analytics{% endblock %}
+{% block subtitle %}Who buys, how often, and how much they spend{% endblock %}
+
+{% block content %}
+<section class="kpi-grid">
+  {{ kpi("Total Customers", summary.total|num, "Customers with a CustomerID") }}
+  {{ kpi("Repeat Customers", summary.repeat|num, "2+ orders") }}
+  {{ kpi("One-Time Customers", summary.one_time|num, "Exactly 1 order") }}
+  {{ kpi("Repeat Customer %", summary.repeat_pct|pct(1), "Repeat ÷ total customers") }}
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Repeat vs one-time</h3></div>
+    <div class="chart-box"><canvas id="repeatChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head"><h3>Top 100 customers by revenue</h3></div>
+    <input type="search" class="search" placeholder="Search customer ID…"
+           data-search-target="customersTable">
+    <div class="table-wrap">
+      <table class="table sortable" id="customersTable">
+        <thead>
+          <tr>
+            <th>Rank</th><th>Customer ID</th><th>Revenue</th><th>Orders</th><th>AOV</th><th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for c in customers %}
+          <tr>
+            <td data-value="{{ c.revenue_rank }}">{{ c.revenue_rank }}</td>
+            <td class="text">{{ c.CustomerID }}</td>
+            <td data-value="{{ c.revenue }}">{{ c.revenue|money }}</td>
+            <td data-value="{{ c.orders }}">{{ c.orders|num }}</td>
+            <td data-value="{{ c.aov or 0 }}">{{ c.aov|money(2) }}</td>
+            <td class="text">
+              <span class="badge {{ 'badge-repeat' if c.customer_type == 'Repeat' else 'badge-one' }}">{{ c.customer_type }}</span>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="muted">No customers for this period.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  new Chart(document.getElementById("repeatChart"), {
+    type: "doughnut",
+    data: {
+      labels: ["Repeat", "One-Time"],
+      datasets: [{ data: [{{ summary.repeat }}, {{ summary.one_time }}],
+                   backgroundColor: ["#16a34a", "#f59e0b"], borderWidth: 0 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: "60%",
+               plugins: { legend: { position: "bottom" } } }
+  });
+</script>
+{% endblock %}

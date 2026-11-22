@@ -1,0 +1,8 @@
+Issue,Count
+Missing/invalid invoice number,0
+Missing/invalid transaction date,300920
+Missing or non-positive quantity,1336
+Missing or non-positive unit price,2512
+Missing StockCode,0
+Missing Description,1454
+Missing CustomerID,134658

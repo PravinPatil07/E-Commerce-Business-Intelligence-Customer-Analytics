@@ -1,0 +1,55 @@
+==========================================================================================
+PHASE 3: BUSINESS INSIGHTS
+E-COMMERCE BUSINESS INTELLIGENCE & CUSTOMER ANALYTICS
+==========================================================================================
+
+1. OVERALL BUSINESS PERFORMANCE
+Total revenue: 4,663,255.69
+Total orders: 8,556
+Unique customers with IDs: 2,997
+Unique products: 3,754
+Units sold: 2,388,383
+Average order value: 545.03
+Revenue/customer: 1,555.97
+Analysis period: 2010-01-12 08:26:00 to 2011-12-10 17:19:00
+
+2. MONTHLY REVENUE PERFORMANCE
+Highest-revenue month: 2011-09 with revenue 465,254.11
+Lowest-revenue month: 2010-12 with revenue 17,125.65
+
+3. CUSTOMER BEHAVIOR
+Repeat customers: 1,534
+One-time customers: 1,463
+Repeat customer percentage: 51.18%
+Repeat-customer revenue contribution: 68.07%
+
+4. PRODUCT PERFORMANCE
+Highest-revenue product: 23843 - PAPER CRAFT , LITTLE BIRDIE
+Product revenue: 168,469.60
+Products required to reach approximately 80% revenue: 760
+These products represent approximately 20.25% of the total product catalog.
+
+5. GEOGRAPHIC PERFORMANCE
+Highest-revenue country: United Kingdom
+Country revenue: 4,052,207.52
+Country revenue contribution: 86.90%
+
+6. CUSTOMER REVENUE CONCENTRATION
+Top 1% of customers account for approximately 24.96% of revenue.
+Top 5% of customers account for approximately 40.49% of revenue.
+Top 10% of customers account for approximately 49.07% of revenue.
+Highest-spending customer ID: 16446
+Customer revenue: 168,469.60
+
+7. SALES TIMING
+Highest-revenue weekday: Monday
+Hour with most orders: 12:00
+
+8. BUSINESS RECOMMENDATIONS
+- Investigate the strongest and weakest revenue months to understand seasonality and demand changes.
+- Develop retention strategies for repeat customers while improving the conversion of one-time customers.
+- Investigate top-performing products for stock planning and merchandising opportunities.
+- Evaluate geographic markets based on revenue, orders and customer activity.
+- Use customer revenue concentration to evaluate business dependency on high-value customers.
+- Investigate cancellation patterns before interpreting cancellation values as lost revenue.
+- These are descriptive findings, not causal conclusions. Further analysis is required before attributing changes to specific business actions.

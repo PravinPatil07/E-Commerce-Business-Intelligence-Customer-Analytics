@@ -1,0 +1,3 @@
+metric,model,backtest_mape,last_3m_avg,next_3m_avg_forecast,change_pct,trend
+revenue,Moving average (3m),10.81,405028.41,405028.41,0.0,Flat
+orders,Moving average (3m),10.69,630.67,630.67,0.0,Flat

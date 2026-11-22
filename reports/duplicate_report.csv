@@ -1,0 +1,3 @@
+Duplicate_Type,Count,Treatment
+Exact duplicate rows,5269,Remove exact duplicate records
+Potential duplicate invoice lines,4,Investigate; not automatically removed

@@ -1,0 +1,11 @@
+CustomerSegment,Customers,TotalRevenue,AverageRevenue,AverageRecency,AverageFrequency,MedianFrequency,AverageRFMScore,CustomerPercentage,RevenuePercentage
+Champions,570,2202450.17,3863.95,32.8,6.67,5.0,13.96,19.02,56.98
+Loyal Customers,393,441061.21,1122.29,98.82,3.38,3.0,11.34,13.11,11.41
+Potential Loyalists,257,333649.07,1298.25,39.98,1.48,1.0,10.18,8.58,8.63
+Cannot Lose Them,132,239743.46,1816.24,214.92,3.45,3.0,10.52,4.4,6.2
+At Risk Customers,379,171633.67,452.86,278.38,1.65,2.0,7.19,12.65,4.44
+Regular Customers,304,144214.4,474.39,195.95,1.33,1.0,7.46,10.14,3.73
+Big Spenders,92,109403.82,1189.17,244.39,1.0,1.0,7.48,3.07,2.83
+Hibernating Customers,479,92676.51,193.48,312.57,1.0,1.0,4.41,15.98,2.4
+Recent Customers,211,81656.77,387.0,44.88,1.0,1.0,7.64,7.04,2.11
+Need Attention,180,48974.0,272.08,126.49,1.0,1.0,6.39,6.01,1.27

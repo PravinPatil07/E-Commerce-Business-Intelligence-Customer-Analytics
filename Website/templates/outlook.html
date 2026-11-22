@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% from "macros.html" import kpi %}
+
+{% block page_title %}Outlook & Forecasts{% endblock %}
+{% block subtitle %}Next 3 months of revenue and orders, and customers at risk of churning{% endblock %}
+
+{% block content %}
+{% if not ready %}
+<section class="card">
+  <h3>No forecasts yet</h3>
+  <p class="muted" style="font-size:14px">Run the model training once, from the dashboard folder:</p>
+  <pre class="code">python -m ml.train_all</pre>
+  <p class="muted" style="font-size:14px">Then refresh this page.</p>
+</section>
+{% else %}
+
+<section class="card">
+  <div class="card-head"><h3>Forecast summary</h3></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Metric</th><th>Model chosen</th><th>Backtest MAPE</th>
+          <th>Last 3 months (avg)</th><th>Next 3 months (avg forecast)</th><th>Change</th><th>Trend</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for s in summary %}
+        <tr>
+          <td class="text" style="text-transform: capitalize">{{ s.metric }}</td>
+          <td class="text">{{ s.model }}</td>
+          <td data-value="{{ s.backtest_mape }}">{{ s.backtest_mape|pct(1) }}</td>
+          <td data-value="{{ s.last_3m_avg }}">{{ s.last_3m_avg|num(0) }}</td>
+          <td data-value="{{ s.next_3m_avg_forecast }}">{{ s.next_3m_avg_forecast|num(0) }}</td>
+          <td data-value="{{ s.change_pct or 0 }}" class="{% if s.change_pct is not none %}{{ 'pos' if s.change_pct >= 0 else 'neg' }}{% endif %}">{{ s.change_pct|pct(1, true) }}</td>
+          <td class="text">
+            <span class="badge {{ 'badge-repeat' if s.trend == 'Growing' else ('badge-one' if s.trend == 'Declining' else '') }}">{{ s.trend }}</span>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <p class="muted" style="margin-top:10px">
+    MAPE is the average percentage error on the last 6 months of history, which the model did not see during training.
+    Lower is better. Forecast ranges are 80% intervals.
+  </p>
+</section>
+
+<section class="grid-2">
+  <div class="card">
+    <div class="card-head"><h3>Revenue: actual and forecast</h3></div>
+    <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>Orders: actual and forecast</h3></div>
+    <div class="chart-box"><canvas id="ordersChart"></canvas></div>
+  </div>
+</section>
+
+<section class="kpi-grid">
+  {{ kpi("Customers at high risk", churn_count_high|num, "Churn probability ≥ 50%") }}
+  {{ kpi("Customers scored", churn_total|num, "All customers as of latest date") }}
+  {{ kpi("Churn model ROC-AUC", (churn_metrics.roc_auc|num(3)) if churn_metrics.roc_auc == churn_metrics.roc_auc else "—", "0.5 = guessing, 1.0 = perfect") }}
+  {{ kpi("Top-10% precision", (churn_metrics.precision_top10pct * 100)|pct(0), "Share who churned among the riskiest 10%") }}
+  {{ kpi("Base churn rate", (churn_metrics.base_churn_rate * 100)|pct(0), "Share who churned overall") }}
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Customers at risk of churning (top 50)</h3>
+    <input type="search" class="search" placeholder="Search customer ID or segment…"
+           data-search-target="riskTable">
+  </div>
+  <div class="table-wrap">
+    <table class="table sortable" id="riskTable">
+      <thead>
+        <tr>
+          <th>Customer ID</th><th>Segment</th><th>Churn risk</th><th>Days since last order</th>
+          <th>Orders</th><th>Why flagged</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in risk %}
+        <tr>
+          <td class="text">{{ r.customer_id }}</td>
+          <td class="text">{{ r.segment or '—' }}</td>
+          <td data-value="{{ r.churn_probability }}">
+            <span class="badge {{ 'badge-one' if r.churn_probability >= 0.5 else '' }}">{{ (r.churn_probability * 100)|round(0)|int }}%</span>
+          </td>
+          <td data-value="{{ r.recency_days }}">{{ r.recency_days|num }}</td>
+          <td data-value="{{ r.frequency }}">{{ r.frequency|num }}</td>
+          <td class="text">{{ r.reasons }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6" class="muted">No churn scores available.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if ready %}
+<script>
+  const charts = {{ charts|tojson }};
+
+  function forecastChart(id, data, isMoney) {
+    new Chart(document.getElementById(id), {
+      type: "line",
+      data: {
+        labels: data.labels,
+        datasets: [
+          { label: "Actual", data: data.actual, borderColor: "#6366f1",
+            backgroundColor: "#6366f1", pointRadius: 2, tension: .25 },
+          { label: "Forecast", data: data.forecast, borderColor: "#f59e0b",
+            borderDash: [6, 4], pointRadius: 3, tension: .25 },
+          { label: "Upper (80%)", data: data.upper, borderColor: "rgba(245,158,11,.35)",
+            borderDash: [2, 3], pointRadius: 0 },
+          { label: "Lower (80%)", data: data.lower, borderColor: "rgba(245,158,11,.35)",
+            borderDash: [2, 3], pointRadius: 0 }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        interaction: { mode: "index", intersect: false },
+        plugins: { legend: { position: "bottom", labels: { boxWidth: 12 } } },
+        scales: { y: { ticks: { callback: v => isMoney ? gbp(v) : Number(v).toLocaleString() } } }
+      }
+    });
+  }
+
+  forecastChart("revenueChart", charts.revenue, true);
+  forecastChart("ordersChart", charts.orders, false);
+</script>
+{% endif %}
+{% endblock %}

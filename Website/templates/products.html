@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% from "macros.html" import kpi %}
+
+{% block page_title %}Product Analytics{% endblock %}
+{% block subtitle %}Revenue, volume and ranking by product{% endblock %}
+
+{% block content %}
+<section class="kpi-grid">
+  {{ kpi("Products Sold", total_products|num) }}
+  {{ kpi("Top Product", (top_product.description or top_product.StockCode) if top_product else "—") }}
+  {{ kpi("Top Product Revenue", top_product.revenue|money if top_product else "—") }}
+  {{ kpi("Top Product Share", top_product.revenue_contribution|pct(1) if top_product else "—", "Share of total revenue") }}
+</section>
+
+<section class="card">
+  <div class="card-head"><h3>Top 10 products by revenue</h3></div>
+  <div class="chart-box tall"><canvas id="topProductsChart"></canvas></div>
+</section>
+
+<section class="card">
+  <div class="card-head">
+    <h3>Product ranking</h3>
+    <input type="search" class="search" placeholder="Search product or code…"
+           data-search-target="productsTable">
+  </div>
+  <div class="table-wrap">
+    <table class="table sortable" id="productsTable">
+      <thead>
+        <tr>
+          <th>Rank</th><th>Stock Code</th><th>Description</th><th>Revenue</th><th>Units</th>
+          <th>Orders</th><th>Customers</th><th>Avg Rev / Unit</th><th>Contribution</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for p in products %}
+        <tr>
+          <td data-value="{{ p.revenue_rank }}">{{ p.revenue_rank }}</td>
+          <td class="text">{{ p.StockCode }}</td>
+          <td class="text">{{ p.description or '—' }}</td>
+          <td data-value="{{ p.revenue }}">{{ p.revenue|money }}</td>
+          <td data-value="{{ p.units }}">{{ p.units|num }}</td>
+          <td data-value="{{ p.orders }}">{{ p.orders|num }}</td>
+          <td data-value="{{ p.customers }}">{{ p.customers|num }}</td>
+          <td data-value="{{ p.avg_revenue_per_unit or 0 }}">{{ p.avg_revenue_per_unit|money(2) }}</td>
+          <td data-value="{{ p.revenue_contribution }}">{{ p.revenue_contribution|pct(2) }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="9" class="muted">No products for this period.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if total_products > products|length %}
+    <p class="muted">Showing the top {{ products|length }} of {{ total_products|num }} products.</p>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const top10 = {{ top10|tojson }};
+  new Chart(document.getElementById("topProductsChart"), {
+    type: "bar",
+    data: {
+      labels: top10.map(p => (p.description || p.StockCode).slice(0, 35)),
+      datasets: [{ label: "Revenue", data: top10.map(p => p.revenue),
+                   backgroundColor: "#8b5cf6", borderRadius: 6 }]
+    },
+    options: { indexAxis: "y", responsive: true, maintainAspectRatio: false,
+               plugins: { legend: { display: false } },
+               scales: { x: { ticks: { callback: v => gbp(v) } } } }
+  });
+</script>
+{% endblock %}
