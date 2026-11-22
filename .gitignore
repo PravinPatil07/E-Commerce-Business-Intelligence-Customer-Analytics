@@ -1,2 +1,7 @@
 # Database (rebuilt from the processed data)
 database/*.db
+__pycache__/
+*.pyc
+database/*.db
+data/raw/
+data/processed/
